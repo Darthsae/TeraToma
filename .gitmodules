@@ -1,0 +1,3 @@
+[submodule "CStandardLibrary"]
+	path = CStandardLibrary
+	url = https://github.com/Darthsae/CStandardLibrary.git

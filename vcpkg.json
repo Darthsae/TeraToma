@@ -1,0 +1,18 @@
+{
+  "dependencies": [
+    {
+      "name": "imgui",
+      "default-features": false,
+      "features": [
+        "docking-experimental",
+        "freetype",
+        "sdl3-binding",
+        "sdl3-renderer-binding"
+      ]
+    },
+    "sdl3",
+    "sdl3-image",
+    "sdl3-ttf",
+    "platform-folders"
+  ]
+}

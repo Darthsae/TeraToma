@@ -9,6 +9,7 @@
 # your development machines (i.e. CMake, vcpkg, Ninja) to ensure a perfectly identical
 # and reproducible local build (on your development machine) and a remote build on
 # build agents.
+
 name: hosted-pure-workflow
 on:
   push:
@@ -54,6 +55,12 @@ jobs:
       - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
         run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
         shell: bash
+
+      - name: Setup Ninja
+        uses: ashutoshvarma/setup-ninja@master
+        with:
+          # ninja version to download. Default: 1.10.0
+          version: 1.10.0
 
       # Setup the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
       - uses: lukka/get-cmake@latest

@@ -1,3 +1,6 @@
 [submodule "CStandardLibrary"]
 	path = CStandardLibrary
 	url = https://github.com/Darthsae/CStandardLibrary.git
+[submodule "vcpkg"]
+	path = vcpkg
+	url = https://github.com/microsoft/vcpkg.git

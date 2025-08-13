@@ -10,4 +10,6 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 add_subdirectory("CStandardLibrary")
+add_subdirectory("TeraTomaLibrary")
+add_subdirectory("TeraTomaBaseGame")
 add_subdirectory("TeraTomaGame")

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.0)
-project(TeraTomaGame VERSION 0.1.0  LANGUAGES C CXX)
+project(TeraTomaLibrary VERSION 0.1.0  LANGUAGES C CXX)
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED TRUE)
@@ -10,8 +10,7 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 set(a_outputDirectory ".")
 
 find_package(SDL3 CONFIG REQUIRED)
-find_package(SDL3_image CONFIG REQUIRED) 
-find_package(SDL3_ttf CONFIG REQUIRED)
+find_package(SDL3_image CONFIG REQUIRED)
 find_package(platform_folders CONFIG REQUIRED)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -22,16 +21,15 @@ file(GLOB_RECURSE "${PROJECT_NAME}SourceFiles" "${CMAKE_CURRENT_SOURCE_DIR}/src/
 file(GLOB_RECURSE "${PROJECT_NAME}HeaderFiles" "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
 file(GLOB_RECURSE "${PROJECT_NAME}AssetFiles" RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/Assets/*" CMAKE_CONFIGURE_DEPENDS)
 
-add_executable(${PROJECT_NAME} ${${PROJECT_NAME}SourceFiles} ${${PROJECT_NAME}HeaderFiles})
+add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}SourceFiles} ${${PROJECT_NAME}HeaderFiles})
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     $<TARGET_NAME_IF_EXISTS:SDL3::SDL3main> $<IF:$<TARGET_EXISTS:SDL3::SDL3>,SDL3::SDL3,SDL3::SDL3-static>
     $<IF:$<TARGET_EXISTS:SDL3_image::SDL3_image>,SDL3_image::SDL3_image,SDL3_image::SDL3_image-static>
-    SDL3_ttf::SDL3_ttf
     sago::platform_folders 
-    CStandardLibrary TeraTomaLibrary)
+    CStandardLibrary)
 
 source_group(
     TREE "${PROJECT_SOURCE_DIR}/${PROJECT_NAME}"

@@ -19,6 +19,7 @@
 #include <utility>
 #include <tuple>
 #include <numbers>
+#include <memory>
 
 constexpr double TWO_PI = 2.0 * std::numbers::pi;
 constexpr double ONE_HALF_PI = 0.5 * std::numbers::pi;
@@ -53,6 +54,7 @@ void DrawGameBackground(SDL_Renderer* a_renderer, TeraToma::GameAPI* a_gameAPI, 
 }
 
 int main(int argc, char const **) {
+    std::println("Ok we've entered main.");
     float cardScale = 2;
     float cardWidth = 38 * cardScale;
     float cardHeight = 56 * cardScale;
@@ -79,45 +81,63 @@ int main(int argc, char const **) {
         std::cout << "Error: " << SDL_GetError() << std::endl;
     }
 
+    
+    std::println("Pre API");
     TeraToma::GameAPI gameAPI = TeraToma::GameAPI();
+    std::println("Pre Assets");
     TeraToma::Assets::Assets assets = TeraToma::Assets::Assets();
+    std::println("Pre UI Manager");
     TeraToma::UI::UIManager uiManager = TeraToma::UI::UIManager();
 
     #pragma region Loading Mods and Assets
+    std::println("Pre Mods");
+    std::println("Mods {}", std::filesystem::current_path().append("Mods").string());
     for (std::filesystem::directory_entry const& dir_entry : std::filesystem::directory_iterator(std::filesystem::current_path().append("Mods"))) {
-        //std::println("Checking {} it is {} and extension {}", dir_entry.path().string(), dir_entry.is_regular_file(), dir_entry.path().extension().string());
+        std::println("Checking {} it is {} and extension {}", dir_entry.path().string(), dir_entry.is_regular_file(), dir_entry.path().extension().string());
         if (dir_entry.is_regular_file() && dir_entry.path().extension().string() == ".dll") {
-            //std::println("We are in the DLL loading.");
+            std::println("{} {} {}", dir_entry.path().stem().string(), dir_entry.path().extension().string(), dir_entry.path().string());
             gameAPI.mods.emplace(std::piecewise_construct, std::forward_as_tuple(dir_entry.path().stem().string()), std::forward_as_tuple(dir_entry.path().stem().string(), dir_entry.path().wstring()));
         }
     }
 
+    std::println("Pre Images");
     for (std::filesystem::directory_entry const& dir_entry : std::filesystem::recursive_directory_iterator(std::filesystem::current_path().append("Assets"))) {
-        if (dir_entry.is_regular_file() && dir_entry.path().extension().string() == ".png") {
-            TeraToma::Assets::TextureAsset textureAsset = TeraToma::Assets::TextureAsset(dir_entry.path().stem().string(), dir_entry.path().stem().string());
-            textureAsset.Load(renderer, dir_entry.path().string());
-            assets.AddTexture(dir_entry.path().stem().string(), textureAsset);
+        if (dir_entry.path().has_extension()) {
+            if (dir_entry.path().extension().string() == ".png") {
+                TeraToma::Assets::TextureAsset textureAsset = TeraToma::Assets::TextureAsset(dir_entry.path().stem().string(), dir_entry.path().stem().string());
+                textureAsset.Load(renderer, dir_entry.path().string());
+                assets.AddTexture(dir_entry.path().stem().string(), textureAsset);
+            } else if (dir_entry.path().extension().string() == ".ttf") {
+                TeraToma::Assets::FontAsset fontAsset = TeraToma::Assets::FontAsset(dir_entry.path().stem().string(), dir_entry.path().stem().string(), 12);
+                fontAsset.Load(renderer, dir_entry.path().string());
+                assets.AddFont(dir_entry.path().stem().string(), fontAsset);
+            }
         }
     }
     #pragma endregion
 
     gameAPI.postLoadCardFnptr = [](std::string_view a_mod, TeraToma::CardType* a_cardType) {
+        std::println("Whack");
     };
 
+    std::println("Pre Mod Load");
     for (std::pair<const std::string, TeraToma::Mod>& pair : gameAPI.mods) {
         pair.second.Load(&gameAPI);
     }
 
+    std::println("Pre Mod Initialize");
     for (std::pair<const std::string, TeraToma::Mod>& pair : gameAPI.mods) {
         pair.second.Initialize(&gameAPI);
     }
 
+    std::println("Pre Cards into Deck");
     for (std::pair<const std::string, TeraToma::CardType>& pair : gameAPI.cardTypes) {
         //std::println("{}", pair.first);
         gameAPI.deck.AddCard(pair.first);
     }
     
-    SDL_FRect* cardRects = (SDL_FRect*)malloc(0);
+    std::println("Pre Card Rects");
+    SDL_FRect* cardRects = (SDL_FRect*)malloc(5);
     SDL_FPoint point = {0, 0};
     uint8_t r, g, b, a;
 
@@ -135,22 +155,30 @@ int main(int argc, char const **) {
         std::forward_as_tuple("Pause Menu"), 
         std::forward_as_tuple(std::string_view("Pause Menu"))
     );
+    uiManager.uiLayers.emplace(std::piecewise_construct, 
+        std::forward_as_tuple("Game Play Menu"), 
+        std::forward_as_tuple(std::string_view("Game Play Menu"))
+    );
 
     TeraToma::UI::UIElement* element;
 
     TeraToma::UI::UILayer* mainMenu = &uiManager.uiLayers.at("Main Menu");
     mainMenu->enabled = true;
-    element = &mainMenu->uiElements.emplace(std::piecewise_construct, 
+    mainMenu->uiElements.emplace(std::piecewise_construct, 
         std::forward_as_tuple("Play"), 
         std::forward_as_tuple(
             std::string_view("Play"), 
             TeraToma::UI::UIRect{{0, 0, 200, 50}}
         )
-    ).first->second;
+    );
+    element = &mainMenu->uiElements.at("Play");
     element->components.emplace(std::piecewise_construct, 
         std::forward_as_tuple("Texture"), 
         std::forward_as_tuple(
-            std::make_shared<TeraToma::UI::UIImageComponent>(std::string_view("UI Panel"))
+            std::make_shared<TeraToma::UI::UIImageComponent>(
+                std::string_view("UI Panel"), 
+                true
+            )
         )
     ).first->second->Hookup(renderer, &gameAPI, &assets, mainMenu, element);
     element->onMouseLeftDown.emplace_back([&cardRects, &bongo, cardHalfWidth, cardHalfHeight, cardWidth, cardHeight](SDL_Renderer* a_renderer, TeraToma::GameAPI* a_gameAPI, TeraToma::Assets::Assets* a_assets, TeraToma::UI::UILayer* a_uiLayer, TeraToma::UI::UIElement* a_element, SDL_FPoint* a_mousePos) {
@@ -173,6 +201,34 @@ int main(int argc, char const **) {
     TeraToma::UI::UILayer* pauseMenu = &uiManager.uiLayers.at("Pause Menu");
     pauseMenu->enabled = false;
 
+    TeraToma::UI::UILayer* gamePlayMenu = &uiManager.uiLayers.at("Game Play Menu");
+    gamePlayMenu->enabled = false;
+    gamePlayMenu->uiElements.emplace(std::piecewise_construct, 
+        std::forward_as_tuple("Kill"), 
+        std::forward_as_tuple(
+            std::string_view("Kill"), 
+            TeraToma::UI::UIRect{{1856, 1016, 64, 64}}
+        )
+    );
+    element = &gamePlayMenu->uiElements.at("Kill");
+    element->components.emplace(std::piecewise_construct, 
+        std::forward_as_tuple("Texture"), 
+        std::forward_as_tuple(
+            std::make_shared<TeraToma::UI::UIImageComponent>(
+                std::string_view("Kill Button"), 
+                false
+            )
+        )
+    ).first->second->Hookup(renderer, &gameAPI, &assets, gamePlayMenu, element);
+    element->onMouseLeftDown.emplace_back([](SDL_Renderer* a_renderer, TeraToma::GameAPI* a_gameAPI, TeraToma::Assets::Assets* a_assets, TeraToma::UI::UILayer* a_uiLayer, TeraToma::UI::UIElement* a_element, SDL_FPoint* a_mousePos) {
+        if (a_gameAPI->gameMouseState == TeraToma::GameMouseState::FLIPPING) {
+            a_gameAPI->gameMouseState = TeraToma::GameMouseState::KILLING;
+        } else if (a_gameAPI->gameMouseState == TeraToma::GameMouseState::KILLING) {
+            a_gameAPI->gameMouseState = TeraToma::GameMouseState::FLIPPING;
+        }
+        return true;
+    });
+
     uiManager.Recalculate(renderer, &gameAPI, &assets);
 
     std::function<void(void)> drawGame = [&]() {
@@ -182,7 +238,7 @@ int main(int argc, char const **) {
                 break;
             case TeraToma::GamePlayState::DRAWING:
                 break;
-            case TeraToma::GamePlayState::ORDERING:
+            case TeraToma::GamePlayState::ORDERING: {
                 for (size_t i = 0; i < gameAPI.hand.cardCount; ++i) {
                     DrawCardInstance(renderer, &gameAPI, &assets, &gameAPI.hand.cards.at(i), &cardRects[i]);
                 }
@@ -196,11 +252,20 @@ int main(int argc, char const **) {
                     float angleTwo = (float)(gameAPI.hand.resolutionOrder.at(i + 1) * bongo - ONE_HALF_PI);
                     SDL_RenderLine(renderer, TeraToma::WINDOW_CENTER_X + 300.0f * std::cosf(angleOne), TeraToma::WINDOW_CENTER_Y + 300.0f * std::sinf(angleOne), TeraToma::WINDOW_CENTER_X + 300.0f * std::cosf(angleTwo), TeraToma::WINDOW_CENTER_Y + 300.0f * std::sinf(angleTwo));
                 }
+                float angle = (float)(gameAPI.hand.resolutionOrder.back() * bongo - ONE_HALF_PI);
+                SDL_RenderLine(renderer, TeraToma::WINDOW_CENTER_X + 300.0f * std::cosf(angle), TeraToma::WINDOW_CENTER_Y + 300.0f * std::sinf(angle), point.x, point.y);
                 SDL_SetRenderDrawColor(renderer, r, g, b, a);
                 break;
-            case TeraToma::GamePlayState::PLAYING:
+            } case TeraToma::GamePlayState::PLAYING:
                 for (size_t i = 0; i < gameAPI.hand.cardCount; ++i) {
                     DrawCardInstance(renderer, &gameAPI, &assets, &gameAPI.hand.cards.at(i), &cardRects[i]);
+                }
+                
+                if (gameAPI.gameMouseState == TeraToma::GameMouseState::KILLING) {
+                    SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
+                    SDL_SetRenderDrawColor(renderer, 225, 0, 0, 95);
+                    SDL_RenderFillRect(renderer, NULL);
+                    SDL_SetRenderDrawColor(renderer, r, g, b, a);
                 }
                 break;
         }
@@ -242,6 +307,8 @@ int main(int argc, char const **) {
                                                                 //std::println("What");
                                                                 gameAPI.hand.Resolve(&gameAPI);
                                                                 gameAPI.gamePlayState = TeraToma::GamePlayState::PLAYING;
+                                                                gameAPI.gameMouseState = TeraToma::GameMouseState::FLIPPING;
+                                                                gamePlayMenu->enabled = true;
                                                             }
                                                             break;
                                                         }
@@ -251,8 +318,23 @@ int main(int argc, char const **) {
                                             case TeraToma::GamePlayState::PLAYING:
                                                 for (size_t i = 0; i < gameAPI.hand.cardCount; ++i) {
                                                     if (SDL_PointInRectFloat(&point, &cardRects[i])) {
-                                                        if (!gameAPI.hand.cards.at(i).flipped) {
-                                                            gameAPI.hand.cards.at(i).flipped = true;
+                                                        switch (gameAPI.gameMouseState) {
+                                                            case TeraToma::GameMouseState::FLIPPING:
+                                                                if (!gameAPI.hand.cards.at(i).flipped) {
+                                                                    gameAPI.hand.cards.at(i).flipped = true;
+                                                                    if (gameAPI.cardTypes.at(gameAPI.hand.cards.at(i).names.back()).onFlip) {
+                                                                        gameAPI.cardTypes.at(gameAPI.hand.cards.at(i).names.back()).onFlip(&gameAPI);
+                                                                    }
+                                                                }
+                                                                break;
+                                                            case TeraToma::GameMouseState::KILLING:
+                                                                if (!gameAPI.hand.cards.at(i).dead) {
+                                                                    gameAPI.hand.cards.at(i).dead = true;
+                                                                    if (gameAPI.cardTypes.at(gameAPI.hand.cards.at(i).names.back()).onKill) {
+                                                                        gameAPI.cardTypes.at(gameAPI.hand.cards.at(i).names.back()).onKill(&gameAPI);
+                                                                    }
+                                                                }
+                                                                break;
                                                         }
                                                         break;
                                                     }
@@ -303,9 +385,17 @@ int main(int argc, char const **) {
                                     break;
                                 case TeraToma::GameState::PAUSE_MENU:
                                     gameAPI.gameState = TeraToma::GameState::GAME;
+                                    pauseMenu->enabled = false;
+                                    if (gameAPI.gamePlayState == TeraToma::GamePlayState::PLAYING) {
+                                        gamePlayMenu->enabled = true;
+                                    }
                                     break;
                                 case TeraToma::GameState::GAME:
                                     gameAPI.gameState = TeraToma::GameState::PAUSE_MENU;
+                                    pauseMenu->enabled = true;
+                                    if (gameAPI.gamePlayState == TeraToma::GamePlayState::PLAYING) {
+                                        gamePlayMenu->enabled = false;
+                                    }
                                     break;
                             }
                         break;
@@ -346,23 +436,22 @@ int main(int argc, char const **) {
         SDL_RenderClear(renderer);
 
         switch (gameAPI.gameState) {
-            case TeraToma::GameState::MAIN_MENU: {
+            case TeraToma::GameState::MAIN_MENU:
                 break;
-            } case TeraToma::GameState::MODS_MENU: {
+            case TeraToma::GameState::MODS_MENU:
                 break;
-            } case TeraToma::GameState::SETTINGS: {
+            case TeraToma::GameState::SETTINGS:
                 break;
-            } case TeraToma::GameState::PAUSE_MENU: {
+            case TeraToma::GameState::PAUSE_MENU:
                 drawGame();
                 SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
                 SDL_SetRenderDrawColor(renderer, 125, 125, 125, 175);
                 SDL_RenderFillRect(renderer, NULL);
                 SDL_SetRenderDrawColor(renderer, r, g, b, a);
                 break;
-            } case TeraToma::GameState::GAME: {
+            case TeraToma::GameState::GAME:
                 drawGame();
                 break;
-            }
         }
 
         uiManager.Render(renderer, &gameAPI, &assets);

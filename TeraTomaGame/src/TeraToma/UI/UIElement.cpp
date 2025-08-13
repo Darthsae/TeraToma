@@ -103,5 +103,9 @@ namespace TeraToma::UI {
         float widthScale = (w / 1920.0f);
         float heightScale = (h / 1080.0f);
         displayArea = {{internalArea.GetX() * widthScale, internalArea.GetY() * heightScale, internalArea.GetWidth() * widthScale, internalArea.GetHeight() * heightScale}};
+    
+        for (const UIEventFnptr& ptr : onRecalculate) {
+            ptr(a_renderer, a_gameAPI, a_assets, a_uiLayer, this);
+        }
     }
 }

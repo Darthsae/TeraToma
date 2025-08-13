@@ -33,6 +33,7 @@ namespace TeraToma::UI {
         std::vector<UIMousePredicateFnptr> onMouseMiddleUp;
         std::vector<UIMousePredicateFnptr> onMouseRightDown;
         std::vector<UIMousePredicateFnptr> onMouseRightUp;
+        std::vector<UIEventFnptr> onRecalculate;
 
         UIRect displayArea;
         UIRect internalArea;

@@ -100,6 +100,7 @@ namespace TeraToma::UI {
     }
 
     void UIManager::Recalculate(SDL_Renderer* a_renderer, GameAPI* a_gameAPI, Assets::Assets* a_assets) {
+        dirtyRecalculate = false;
         for (std::pair<const std::string, UILayer>& pair : this->uiLayers) {
             pair.second.Recalculate(a_renderer, a_gameAPI, a_assets);
         }

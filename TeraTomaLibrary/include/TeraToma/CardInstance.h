@@ -30,7 +30,9 @@ namespace TeraToma {
         size_t index;
         bool flipped = false;
         bool dead = false;
-        bool lies;
+        bool activated = false;
+        bool lies = false;
+        bool canWin = false;
 
         void UpdateDisplay(GameAPI*);
     };

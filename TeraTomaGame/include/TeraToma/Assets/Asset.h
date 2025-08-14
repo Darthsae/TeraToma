@@ -11,7 +11,6 @@ namespace TeraToma {
             std::string id;
             std::string name;
 
-            virtual void Load(SDL_Renderer*, std::string) = NULL;
             virtual void Unload() = NULL;
         };
     }

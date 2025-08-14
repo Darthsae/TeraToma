@@ -50,10 +50,23 @@ namespace TeraToma {
         GameState gameState = GameState::MAIN_MENU;
         GamePlayState gamePlayState = GamePlayState::DRAWING;
         GameMouseState gameMouseState = GameMouseState::FLIPPING;
+        std::function<bool(GameAPI*, size_t)> validCardSelectionFnptr = NULL;
+        std::function<void(GameAPI*, size_t)> selectedFnptr = NULL;
+        std::function<void(GameAPI*, size_t)> postSelectedFnptr = NULL;
+        std::vector<size_t> selected;
+        size_t selecting;
+        size_t maxSelect;
+        int32_t health;
+        int32_t healthSoftCap;
 
-        std::function<void(std::string_view, CardType*)> postLoadCardFnptr = nullptr;
+        std::function<void(std::string_view, CardType*)> postLoadCardFnptr = NULL;
+        std::function<void(GameAPI*)> postWinFnptr = NULL;
+        std::function<void(GameAPI*, int32_t)> postHurtFnptr = NULL;
 
-        CardType* LoadCard(std::string_view, std::string_view, std::string_view, CardAllegiance);
+        CardType* LoadCard(std::string_view, std::string_view, std::string_view, CardAllegiance, bool);
+        void HandleDeath(size_t);
+        void Select(size_t);
+        void Hurt(int32_t);
     };
 }
 #endif

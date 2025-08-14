@@ -9,7 +9,7 @@ FontAsset::FontAsset(std::string a_id, std::string a_name, float a_ptsize) {
     this->ptsize = a_ptsize;
 }
 
-void FontAsset::Load(SDL_Renderer* a_renderer, std::string a_path) {
+void FontAsset::Load(std::string a_path) {
     font = TTF_OpenFont(a_path.c_str(), ptsize);
 }
 

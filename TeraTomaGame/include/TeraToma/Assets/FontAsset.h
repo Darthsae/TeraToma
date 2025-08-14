@@ -14,7 +14,7 @@ namespace TeraToma {
             float ptsize;
 
             FontAsset(std::string, std::string, float);
-            void Load(SDL_Renderer*, std::string) override;
+            void Load(std::string);
             void Unload() override;
         };
     }

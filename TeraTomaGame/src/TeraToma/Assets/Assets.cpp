@@ -14,6 +14,10 @@ namespace TeraToma::Assets {
         fonts.emplace(a_name, a_font);
     }
 
+    void Assets::AddSound(std::string_view a_name, AudioAsset a_audio) {
+        sounds.emplace(a_name, a_audio);
+    }
+
     void Assets::Uninitialize() {
         for (std::pair<const std::string, TextureAsset>& pair : textures) {
             pair.second.Unload();
@@ -26,5 +30,11 @@ namespace TeraToma::Assets {
         }
 
         fonts.clear();
+
+        for (std::pair<const std::string, AudioAsset>& pair : sounds) {
+            pair.second.Unload();
+        }
+
+        sounds.clear();
     }
 }

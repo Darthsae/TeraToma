@@ -4,6 +4,18 @@
 #include <SDL3/SDL.h>
 
 namespace TeraToma::UI {
+    enum struct UIAnchor {
+        TOP_LEFT,
+        TOP_CENTER,
+        TOP_RIGHT,
+        MIDDLE_LEFT,
+        MIDDLE_CENTER,
+        MIDDLE_RIGHT,
+        BOTTOM_LEFT,
+        BOTTOM_CENTER,
+        BOTTOM_RIGHT
+    };
+
     struct UIRect {
     public:
         SDL_FRect rect;

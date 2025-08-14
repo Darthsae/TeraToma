@@ -13,6 +13,7 @@ namespace TeraToma::UI {
         UIManager();
 
         std::unordered_map<std::string, UILayer> uiLayers;
+        bool dirtyRecalculate = true;
 
         void Render(SDL_Renderer*, GameAPI*, Assets::Assets*);
         bool OnMouseLeftDown(SDL_Renderer*, GameAPI*, Assets::Assets*, SDL_FPoint*);

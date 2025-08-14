@@ -14,7 +14,7 @@ namespace TeraToma {
             SDL_Texture* texture;
 
             TextureAsset(std::string, std::string);
-            void Load(SDL_Renderer*, std::string) override;
+            void Load(SDL_Renderer*, std::string);
             void Unload() override;
         };
     }

@@ -21,7 +21,7 @@ namespace TeraToma {
             //std::println("i {} Name {}", i, cards.at(i).names.at(0));
             CardType cardType = a_gameAPI->cardTypes.at(cards.at(i).names.at(0));
             if (cardType.onActivate != NULL) {
-                cardType.onActivate(a_gameAPI);
+                cardType.onActivate(a_gameAPI, i);
             }
         }
 

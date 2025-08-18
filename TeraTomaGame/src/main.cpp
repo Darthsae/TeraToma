@@ -84,6 +84,7 @@ int main(int argc, char const **) {
     float cardLargeHalfWidth = cardLargeWidth * 0.5f;
     float cardLargeHalfHeight = cardLargeHeight * 0.5f;
     int wonk = (int)(TeraToma::WINDOW_WIDTH / cardWidth);
+    int largeCardAmount = (int)(TeraToma::WINDOW_WIDTH / cardLargeWidth);
     std::vector<std::string> cardChoices = std::vector<std::string>();
 
     SDL_SetAppMetadata(TeraToma::APPLICATION_TITLE, "0.1.0.0", "com.darthsae.teratoma");
@@ -173,10 +174,59 @@ int main(int argc, char const **) {
         pair.second.Initialize(&gameAPI);
     }
 
+    std::vector<std::string> normal = std::vector<std::string>();
+    std::vector<std::string> unique = std::vector<std::string>();
+    std::vector<std::string> normalOpposition = std::vector<std::string>();
+    std::vector<std::string> uniqueOpposition = std::vector<std::string>();
+
     std::println("Pre Cards into Deck");
     for (std::pair<const std::string, TeraToma::CardType>& pair : gameAPI.cardTypes) {
         //std::println("{}", pair.first);
-        gameAPI.deck.AddCard(pair.first);
+        switch (pair.second.allegiance) {
+            case TeraToma::CardAllegiance::VILLAGE:
+            case TeraToma::CardAllegiance::NEUTRAL:
+            case TeraToma::CardAllegiance::MONSTER:
+                if (pair.second.canWin) {
+                    normal.emplace_back(pair.first);
+                } else {
+                    normalOpposition.emplace_back(pair.first);
+                }
+                break;
+            case TeraToma::CardAllegiance::OUTCAST:
+            case TeraToma::CardAllegiance::OUTSIDE:
+            case TeraToma::CardAllegiance::UNDEATH:
+            case TeraToma::CardAllegiance::DEMONIC:
+            case TeraToma::CardAllegiance::DIVINES:
+                if (pair.second.canWin) {
+                    unique.emplace_back(pair.first);
+                } else {
+                    uniqueOpposition.emplace_back(pair.first);
+                }
+                break;
+        }
+    }
+
+    uint32_t option;
+    size_t count;
+    count = std::min<size_t>(3, normal.size());
+    for (size_t i = 0; i < count; ++i) {
+        option = RandomUniformUInt32(0, (uint32_t)normal.size());
+        gameAPI.deck.AddCard(normal[option]);
+        normal.erase(normal.begin() + option);
+    }
+
+    count = std::min<size_t>(1, unique.size());
+    for (size_t i = 0; i < count; ++i) {
+        option = RandomUniformUInt32(0, (uint32_t)unique.size());
+        gameAPI.deck.AddCard(unique[option]);
+        unique.erase(unique.begin() + option);
+    }
+
+    count = std::min<size_t>(1, normalOpposition.size());
+    for (size_t i = 0; i < count; ++i) {
+        option = RandomUniformUInt32(0, (uint32_t)normalOpposition.size());
+        gameAPI.deck.AddCard(normalOpposition[option]);
+        normalOpposition.erase(normalOpposition.begin() + option);
     }
     
     std::println("Pre Card Rects");
@@ -196,10 +246,6 @@ int main(int argc, char const **) {
         std::forward_as_tuple(std::string_view("Settings Menu"))
     );
     uiManager.uiLayers.emplace(std::piecewise_construct, 
-        std::forward_as_tuple("Pause Menu"), 
-        std::forward_as_tuple(std::string_view("Pause Menu"))
-    );
-    uiManager.uiLayers.emplace(std::piecewise_construct, 
         std::forward_as_tuple("Game Play Menu"), 
         std::forward_as_tuple(std::string_view("Game Play Menu"))
     );
@@ -211,8 +257,50 @@ int main(int argc, char const **) {
         std::forward_as_tuple("Game Ordering Menu"), 
         std::forward_as_tuple(std::string_view("Game Ordering Menu"))
     );
+    uiManager.uiLayers.emplace(std::piecewise_construct, 
+        std::forward_as_tuple("Game Rewards Menu"), 
+        std::forward_as_tuple(std::string_view("Game Rewards Menu"))
+    );
+    uiManager.uiLayers.emplace(std::piecewise_construct, 
+        std::forward_as_tuple("Pause Menu"), 
+        std::forward_as_tuple(std::string_view("Pause Menu"))
+    );
 
     TeraToma::UI::UIElement* element;
+
+    TeraToma::UI::UILayer* gameRewardsMenu = &uiManager.uiLayers.at("Game Rewards Menu");
+    gameRewardsMenu->enabled = false;
+    gameRewardsMenu->uiElements.emplace(std::piecewise_construct, 
+        std::forward_as_tuple("Texter"), 
+        std::forward_as_tuple(
+            std::string_view("Texter"), 
+            TeraToma::UI::UIRect{{200, 660, 1520, 320}}
+        )
+    );
+    element = &gameRewardsMenu->uiElements.at("Texter");
+    element->components.emplace(std::piecewise_construct, 
+        std::forward_as_tuple("Texture"), 
+        std::forward_as_tuple(
+            std::make_shared<TeraToma::UI::UIImageComponent>(
+                std::string_view("UI Panel"), 
+                true
+            )
+        )
+    ).first->second->Hookup(renderer, &gameAPI, &assets, gameRewardsMenu, element);
+    element->components.emplace(std::piecewise_construct, 
+        std::forward_as_tuple("Texta"), 
+        std::forward_as_tuple(
+            std::make_shared<TeraToma::UI::UITextComponent>(
+                "Description",
+                "NotoSansMono-Regular-16",
+                6,
+                TeraToma::UI::UIAnchor::TOP_CENTER
+            )
+        )
+    ).first->second->Hookup(renderer, &gameAPI, &assets, gameRewardsMenu, element);
+
+    TeraToma::UI::UIElement* rewardsDescriptionElement = &gameRewardsMenu->uiElements.at("Texter");
+    std::shared_ptr<TeraToma::UI::UITextComponent> rewardsDescriptionText = std::dynamic_pointer_cast<TeraToma::UI::UITextComponent>(rewardsDescriptionElement->components.at("Texta"));
 
     TeraToma::UI::UILayer* gameDiaMenu = &uiManager.uiLayers.at("Game Dia Menu");
     gameDiaMenu->enabled = false;
@@ -522,6 +610,7 @@ int main(int argc, char const **) {
         gameDiaMenu->Clear();
         gamePlayMenu->enabled = false;
         gameDiaMenu->enabled = false;
+        gameRewardsMenu->enabled = true;
         cardChoices.clear();
         cardRects = (SDL_FRect*)realloc(cardRects, sizeof(SDL_FRect) * 5);
         std::vector<std::string> allCards = std::vector<std::string>();
@@ -577,6 +666,7 @@ int main(int argc, char const **) {
                                                         gameAPI.hand = TeraToma::Hand(&gameAPI, gameAPI.deck.Shuffle(gameAPI.hand.cardCount + RandomUniformUInt32(0, 1)));
                                                         gameAPI.gamePlayState = TeraToma::GamePlayState::ORDERING;
                                                         gameOrderingMenu->enabled = true;
+                                                        gameRewardsMenu->enabled = false;
                                                         cardRects = (SDL_FRect*)realloc(cardRects, sizeof(SDL_FRect) * gameAPI.hand.cardCount);
                                                         bongo = (float)(TWO_PI / gameAPI.hand.cardCount);
                                                         for (size_t i = 0; i < gameAPI.hand.cardCount; ++i) {
@@ -753,6 +843,14 @@ int main(int argc, char const **) {
                                                     gameAPI.hand.resolutionOrder.pop_back();
                                                 }
                                                 break;
+                                            case TeraToma::GamePlayState::REWARDS:
+                                                for (size_t i = 0; i < cardChoices.size(); ++i) {
+                                                    if (SDL_PointInRectFloat(&point, &cardRects[i])) {
+                                                        rewardsDescriptionText->SetText(renderer, &assets, rewardsDescriptionElement, std::format("{}\n{}\n{}", cardChoices[i], TeraToma::AllegianceDisplayStrings.at(gameAPI.cardTypes.at(cardChoices[i]).allegiance), gameAPI.cardTypes.at(cardChoices[i]).description));
+                                                        break;
+                                                    }
+                                                }
+                                                break;
                                         }
                                         break;
                                 }
@@ -787,17 +885,33 @@ int main(int argc, char const **) {
                                 case TeraToma::GameState::PAUSE_MENU:
                                     gameAPI.gameState = TeraToma::GameState::GAME;
                                     pauseMenu->enabled = false;
-                                    if (gameAPI.gamePlayState == TeraToma::GamePlayState::PLAYING) {
-                                        gamePlayMenu->enabled = true;
-                                        gameDiaMenu->enabled = true;
+                                    switch (gameAPI.gamePlayState) {
+                                        case TeraToma::GamePlayState::PLAYING:
+                                            gamePlayMenu->enabled = true;
+                                            gameDiaMenu->enabled = true;
+                                            break;
+                                        case TeraToma::GamePlayState::ORDERING:
+                                            gameOrderingMenu->enabled = true;
+                                            break;
+                                        case TeraToma::GamePlayState::REWARDS:
+                                            gameRewardsMenu->enabled = true;
+                                            break;
                                     }
                                     break;
                                 case TeraToma::GameState::GAME:
                                     gameAPI.gameState = TeraToma::GameState::PAUSE_MENU;
                                     pauseMenu->enabled = true;
-                                    if (gameAPI.gamePlayState == TeraToma::GamePlayState::PLAYING) {
-                                        gamePlayMenu->enabled = false;
-                                        gameDiaMenu->enabled = false;
+                                    switch (gameAPI.gamePlayState) {
+                                        case TeraToma::GamePlayState::PLAYING:
+                                            gamePlayMenu->enabled = false;
+                                            gameDiaMenu->enabled = false;
+                                            break;
+                                        case TeraToma::GamePlayState::ORDERING:
+                                            gameOrderingMenu->enabled = false;
+                                            break;
+                                        case TeraToma::GamePlayState::REWARDS:
+                                            gameRewardsMenu->enabled = false;
+                                            break;
                                     }
                                     break;
                             }
@@ -921,6 +1035,8 @@ int main(int argc, char const **) {
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_RenderClear(renderer);
 
+        SDL_FRect rectToUse = {0, 0, cardLargeWidth, cardLargeHeight};
+
         switch (gameAPI.gameState) {
             case TeraToma::GameState::MAIN_MENU:
                 break;
@@ -934,6 +1050,12 @@ int main(int argc, char const **) {
                 SDL_SetRenderDrawColor(renderer, 125, 125, 125, 175);
                 SDL_RenderFillRect(renderer, NULL);
                 SDL_SetRenderDrawColor(renderer, r, g, b, a);
+                for (size_t i = 0; i < gameAPI.deck.cards.size(); ++i) {
+                    rectToUse.x = i % largeCardAmount * cardLargeWidth;
+                    rectToUse.y = (int)(i / largeCardAmount) * cardLargeHeight;
+                    
+                    DrawCardType(renderer, &gameAPI, &assets, &gameAPI.cardTypes.at(gameAPI.deck.cards[i]), &rectToUse);
+                }
                 break;
             case TeraToma::GameState::GAME:
                 drawGame();

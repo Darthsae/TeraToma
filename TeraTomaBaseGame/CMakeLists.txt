@@ -21,7 +21,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/i
 target_link_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-    TeraTomaLibrary)
+    TeraTomaLibrary CStandardLibrary)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE "DLL_EXPORTS")
 

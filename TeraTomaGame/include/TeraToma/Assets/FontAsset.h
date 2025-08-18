@@ -8,13 +8,24 @@
 
 namespace TeraToma {
     namespace Assets {
+        /// @brief 
         class FontAsset: public Asset {
         public:
+            /// @brief 
+            /// @param  
+            /// @param  
+            /// @param  
+            FontAsset(std::string, std::string, float);
+
+            /// @brief 
             TTF_Font* font;
+            /// @brief 
             float ptsize;
 
-            FontAsset(std::string, std::string, float);
+            /// @brief 
+            /// @param  
             void Load(std::string);
+            /// @brief 
             void Unload() override;
         };
     }

@@ -8,13 +8,26 @@
 
 namespace TeraToma {
     namespace Assets {
+        /// @brief 
         class TextureAsset: public Asset {
         public:
-            float w, h;
+            /// @brief 
+            /// @param  
+            /// @param  
+            TextureAsset(std::string, std::string);
+
+            /// @brief 
+            float w;
+            /// @brief 
+            float h;
+            /// @brief 
             SDL_Texture* texture;
 
-            TextureAsset(std::string, std::string);
+            /// @brief 
+            /// @param  
+            /// @param  
             void Load(SDL_Renderer*, std::string);
+            /// @brief 
             void Unload() override;
         };
     }

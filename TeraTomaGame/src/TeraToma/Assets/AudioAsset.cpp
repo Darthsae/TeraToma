@@ -21,6 +21,7 @@ void AudioAsset::Load(SDL_AudioDeviceID a_audioDevice, std::string a_path) {
 }
 
 void AudioAsset::Play(SDL_AudioDeviceID a_audioDevice) {
+    SDL_ClearAudioStream(stream);
     SDL_PutAudioStreamData(stream, wavStart, (int)wavLength);
 }
 

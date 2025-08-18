@@ -4,36 +4,56 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <TeraToma/FnptrTypes.h>
 
 namespace TeraToma {
     class GameAPI;
     enum struct CardAllegiance;
-
-    typedef std::function<std::string(GameAPI*, size_t)> ResponseFnptr_t;
-    typedef std::function<void(GameAPI*, size_t)> CardActionFnptr_t;
-    typedef std::function<bool(GameAPI*, size_t)> CardPredicateFnptr_t;
     
+    /// @brief 
     class CardType {
     public:
+        /// @brief 
+        /// @param  
+        /// @param  
+        /// @param  
+        /// @param  
         CardType(std::string_view, std::string_view, CardAllegiance, bool);
 
-        // Information of the card.
+        /// @brief 
         std::string name;
+        /// @brief 
         std::string description;
+        /// @brief 
         CardAllegiance allegiance;
+        /// @brief 
         bool canWin;
 
-        // Functions of the card.
-        CardPredicateFnptr_t canFlip = NULL;
-        CardActionFnptr_t onFlip = NULL;
-        CardPredicateFnptr_t canKill = NULL;
-        CardActionFnptr_t onKill = NULL;
-        CardPredicateFnptr_t canActivate = NULL;
-        CardActionFnptr_t onActivate = NULL;
-        CardPredicateFnptr_t canWinBase = NULL;
-        CardPredicateFnptr_t canWinPost = NULL;
+        /// @brief 
+        CardIndexedActionFnptr_t onResolve = NULL;
+        /// @brief 
+        CardIndexedActionFnptr_t onPostResolve = NULL;
+        /// @brief 
+        CardIndexedPredicateFnptr_t canFlip = NULL;
+        /// @brief 
+        CardIndexedActionFnptr_t onFlip = NULL;
+        /// @brief 
+        CardIndexedPredicateFnptr_t canKill = NULL;
+        /// @brief 
+        CardIndexedActionFnptr_t onKill = NULL;
+        /// @brief 
+        CardIndexedPredicateFnptr_t canActivate = NULL;
+        /// @brief 
+        CardIndexedActionFnptr_t onActivate = NULL;
+        /// @brief 
+        CardIndexedPredicateFnptr_t canWinBase = NULL;
+        /// @brief 
+        CardIndexedPredicateFnptr_t canWinPost = NULL;
 
+        /// @brief 
         static const CardType EMPTY;
+
+        ~CardType();
     };
 }
 #endif

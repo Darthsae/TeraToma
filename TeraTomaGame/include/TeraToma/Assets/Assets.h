@@ -3,6 +3,7 @@
 #define ASSETS_H
 #include <string>
 #include <unordered_map>
+#include <memory>
 #include <TeraToma/Assets/AudioAsset.h>
 #include <TeraToma/Assets/FontAsset.h>
 #include <TeraToma/Assets/TextureAsset.h>
@@ -13,18 +14,37 @@ namespace TeraToma {
     }
 
     namespace Assets {
+        /// @brief 
         class Assets {
         public:
+            /// @brief 
             Assets();
 
-            std::unordered_map<std::string, FontAsset> fonts;
-            std::unordered_map<std::string, AudioAsset> sounds;
-            std::unordered_map<std::string, TextureAsset> textures;
+            /// @brief 
+            std::unordered_map<std::string, std::shared_ptr<FontAsset>> fonts;
+            /// @brief 
+            std::unordered_map<std::string, std::shared_ptr<AudioAsset>> sounds;
+            /// @brief 
+            std::unordered_map<std::string, std::shared_ptr<TextureAsset>> textures;
+            /// @brief 
             TeraToma::UI::UIManager* uiManager;
 
-            void AddTexture(std::string_view, TextureAsset);
-            void AddFont(std::string_view, FontAsset);
-            void AddSound(std::string_view, AudioAsset);
+            /// @brief 
+            /// @param  
+            /// @param  
+            /// @param  
+            void AddTexture(SDL_Renderer*, std::string, std::string);
+            /// @brief 
+            /// @param  
+            /// @param  
+            /// @param  
+            void AddFont(std::string, std::string, float);
+            /// @brief 
+            /// @param  
+            /// @param  
+            /// @param  
+            void AddSound(SDL_AudioDeviceID, std::string, std::string);
+            /// @brief 
             void Uninitialize();
         };
     }

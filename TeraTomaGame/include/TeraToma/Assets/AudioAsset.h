@@ -8,16 +8,31 @@
 
 namespace TeraToma {
     namespace Assets {
+        /// @brief 
         class AudioAsset: public Asset {
         public:
+            /// @brief 
+            /// @param  
+            /// @param  
+            AudioAsset(std::string, std::string);
+
+            /// @brief 
             SDL_AudioSpec wavSpec;
+            /// @brief 
             uint8_t* wavStart;
+            /// @brief 
             uint32_t wavLength;
+            /// @brief 
             SDL_AudioStream *stream;
 
-            AudioAsset(std::string, std::string);
+            /// @brief 
+            /// @param  
+            /// @param  
             void Load(SDL_AudioDeviceID, std::string);
+            /// @brief 
+            /// @param  
             void Play(SDL_AudioDeviceID);
+            /// @brief 
             void Unload() override;
         };
     }

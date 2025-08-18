@@ -10,11 +10,11 @@ namespace TeraToma::UI {
     void UIImageComponent::Hookup(SDL_Renderer* a_renderer, GameAPI* a_gameAPI, Assets::Assets* a_assets, UILayer* a_uiLayer, UIElement* a_element) {
         if (nineSliced) {
             a_element->onRender.emplace_back([this](SDL_Renderer* a_renderer, GameAPI* a_gameAPI, Assets::Assets* a_assets, UILayer* a_uiLayer, UIElement* a_element) {
-                SDL_RenderTexture9Grid(a_renderer, a_assets->textures.at(this->texture).texture, NULL, 6, 6, 6, 6, 2, &a_element->displayArea.rect);
+                SDL_RenderTexture9Grid(a_renderer, a_assets->textures.at(this->texture)->texture, NULL, 6, 6, 6, 6, 2, &a_element->displayArea.rect);
             });
         } else {
             a_element->onRender.emplace_back([this](SDL_Renderer* a_renderer, GameAPI* a_gameAPI, Assets::Assets* a_assets, UILayer* a_uiLayer, UIElement* a_element) {
-                SDL_RenderTexture(a_renderer, a_assets->textures.at(this->texture).texture, NULL, &a_element->displayArea.rect);
+                SDL_RenderTexture(a_renderer, a_assets->textures.at(this->texture)->texture, NULL, &a_element->displayArea.rect);
             });
         }
     }

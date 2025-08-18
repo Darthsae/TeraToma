@@ -10,4 +10,17 @@ namespace TeraToma {
     }
 
     const CardType CardType::EMPTY = CardType("", "", CardAllegiance::NEUTRAL, true);
+
+    CardType::~CardType() {
+        onResolve = NULL;
+        onPostResolve = NULL;
+        canFlip = NULL;
+        onFlip = NULL;
+        canKill = NULL;
+        onKill = NULL;
+        canActivate = NULL;
+        onActivate = NULL;
+        canWinBase = NULL;
+        canWinPost = NULL;
+    }
 }

@@ -106,4 +106,8 @@ namespace TeraToma::UI {
             pair.second.Recalculate(a_renderer, a_gameAPI, a_assets, this);
         }
     }
+
+    void UILayer::Clear() {
+        uiElements.clear();
+    }
 }

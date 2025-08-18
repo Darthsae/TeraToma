@@ -28,5 +28,26 @@
             "configurePreset": "x64",
             "configuration": "Release"
         }
+    ],
+    "workflowPresets": [
+        {
+            "name": "Workflow Default",
+            "description": "",
+            "displayName": "",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "x64"
+                }
+            ]
+        }
+    ],
+    "packagePresets": [
+        {
+            "name": "Package Default",
+            "description": "",
+            "displayName": "",
+            "configurePreset": "x64"
+        }
     ]
 }

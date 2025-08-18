@@ -4,21 +4,22 @@
 #include <print>
 
 namespace TeraToma::UI {
-    UITextComponent::UITextComponent(std::string a_text, int a_margins, UIAnchor a_anchor) {
+    UITextComponent::UITextComponent(std::string a_text, std::string a_font, int a_margins, UIAnchor a_anchor) {
         text = a_text;
+        fontName = a_font;
         margins = a_margins;
         textAnchor = a_anchor;
     }
 
     void UITextComponent::Hookup(SDL_Renderer* a_renderer, GameAPI* a_gameAPI, Assets::Assets* a_assets, UILayer* a_uiLayer, UIElement* a_element) {
         std::println("Woah: \"{}\"", this->text.c_str());
-        SDL_Surface* surface = TTF_RenderText_Blended_Wrapped(a_assets->fonts.at("NotoSansMono-Regular").font, this->text.c_str(), this->text.size(), {255, 255, 255, SDL_ALPHA_OPAQUE}, (int)a_element->displayArea.GetWidth() - margins * 2);
+        SDL_Surface* surface = TTF_RenderText_Blended_Wrapped(a_assets->fonts.at(fontName)->font, this->text.c_str(), this->text.size(), {255, 255, 255, SDL_ALPHA_OPAQUE}, (int)a_element->displayArea.GetWidth() - margins * 2);
         textTexture = SDL_CreateTextureFromSurface(a_renderer, surface);
         SDL_DestroySurface(surface);
 
         a_element->onRecalculate.emplace_back([this](SDL_Renderer* a_renderer, GameAPI* a_gameAPI, Assets::Assets* a_assets, UILayer* a_uiLayer, UIElement* a_element) {
             SDL_DestroyTexture(textTexture);
-            SDL_Surface* surface = TTF_RenderText_Blended_Wrapped(a_assets->fonts.at("NotoSansMono-Regular").font, this->text.c_str(), this->text.size(), {255, 255, 255, SDL_ALPHA_OPAQUE}, (int)a_element->displayArea.GetWidth() - margins * 2);
+            SDL_Surface* surface = TTF_RenderText_Blended_Wrapped(a_assets->fonts.at(fontName)->font, this->text.c_str(), this->text.size(), {255, 255, 255, SDL_ALPHA_OPAQUE}, (int)a_element->displayArea.GetWidth() - margins * 2);
             w = surface->w;
             h = surface->h;
             textTexture = SDL_CreateTextureFromSurface(a_renderer, surface);

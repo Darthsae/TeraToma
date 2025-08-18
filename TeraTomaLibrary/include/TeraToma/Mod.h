@@ -17,24 +17,44 @@ namespace TeraToma {
     typedef void (__stdcall *ModUninitializeFnptr)(GameAPI* const);
     typedef void (__stdcall *ModUnloadFnptr)(GameAPI* const);
 
+    /// @brief 
     class Mod {
     public:
+        /// @brief 
+        /// @param  
+        /// @param  
         Mod(std::string, std::wstring);
 
+        /// @brief 
         std::string name;
+        /// @brief 
         HINSTANCE library;
+        /// @brief 
         bool enabled = true;
 
+        /// @brief 
         ModLoadFnptr modLoadFnptr = nullptr;
+        /// @brief 
         ModInitializeFnptr modInitializeFnptr = nullptr;
+        /// @brief 
         ModUninitializeFnptr modUninitializeFnptr = nullptr;
+        /// @brief 
         ModUnloadFnptr modUnloadFnptr = nullptr;
 
+        /// @brief 
+        /// @param  
         void Load(GameAPI* const);
+        /// @brief 
+        /// @param  
         void Initialize(GameAPI* const);
+        /// @brief 
+        /// @param  
         void Uninitialize(GameAPI* const);
+        /// @brief 
+        /// @param  
         void Unload(GameAPI* const);
 
+        /// @brief 
         ~Mod();
     };
 }

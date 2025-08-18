@@ -29,21 +29,30 @@ extern "C" void MOD_API ModLoad(TeraToma::GameAPI* const a_gameAPI) {
         a_gameAPI->Hurt(2);
     };
     doctorCard->onPostResolve = [](TeraToma::GameAPI* a_gameAPI, size_t a_index) {
-        int left = ((a_gameAPI->hand.cardCount + (int)a_index - 1) % (int)a_gameAPI->hand.cardCount);
-        int right = (((int)a_index + 1) % (int)a_gameAPI->hand.cardCount);
+        int cured = 0;
+        if (a_gameAPI->hand.cards[a_index].lies) {
+            cured = RandomUniformUInt32(0, 2);
+        } else {
+            int left = ((a_gameAPI->hand.cardCount + (int)a_index - 1) % (int)a_gameAPI->hand.cardCount);
+            int right = (((int)a_index + 1) % (int)a_gameAPI->hand.cardCount);
 
-        std::println("Left {} Right {}", left, right);
-        std::println("Left {} Right {}", a_gameAPI->hand.cards.at(left).statuses.size(), a_gameAPI->hand.cards.at(right).statuses.size());
-        std::println("Left {} Right {}", a_gameAPI->hand.cards.at(left).names.back(), a_gameAPI->hand.cards.at(right).names.back());
-        std::println("Left {} Right {}", AllegianceStrings.at(a_gameAPI->cardTypes.at(a_gameAPI->hand.cards.at(left).names.back()).allegiance), AllegianceStrings.at(a_gameAPI->cardTypes.at(a_gameAPI->hand.cards.at(right).names.back()).allegiance));
+            //std::println("Left {} Right {}", left, right);
+            //std::println("Left {} Right {}", a_gameAPI->hand.cards[left].statuses.size(), a_gameAPI->hand.cards[right].statuses.size());
+            //std::println("Left {} Right {}", a_gameAPI->hand.cards[left].names.back(), a_gameAPI->hand.cards[right].names.back());
+            //std::println("Left {} Right {}", AllegianceStrings.at(a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[left].names.back()).allegiance), AllegianceStrings.at(a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[right].names.back()).allegiance));
 
-        if (a_gameAPI->hand.cards.at(left).statuses.size() != 0 && std::find(a_gameAPI->hand.cards.at(left).statuses.begin(), a_gameAPI->hand.cards.at(left).statuses.end(), "Corruption") != a_gameAPI->hand.cards.at(left).statuses.end()) {
-            a_gameAPI->hand.cards.at(left).statuses.erase(std::find(a_gameAPI->hand.cards.at(left).statuses.begin(), a_gameAPI->hand.cards.at(left).statuses.end(), "Corruption"));
+            if (a_gameAPI->hand.cards[left].statuses.size() != 0 && std::find(a_gameAPI->hand.cards[left].statuses.begin(), a_gameAPI->hand.cards[left].statuses.end(), "Corruption") != a_gameAPI->hand.cards[left].statuses.end()) {
+                a_gameAPI->hand.cards[left].statuses.erase(std::find(a_gameAPI->hand.cards[left].statuses.begin(), a_gameAPI->hand.cards[left].statuses.end(), "Corruption"));
+                ++cured;
+            }
+
+            if (a_gameAPI->hand.cards[right].statuses.size() != 0 && std::find(a_gameAPI->hand.cards[right].statuses.begin(), a_gameAPI->hand.cards[right].statuses.end(), "Corruption") != a_gameAPI->hand.cards[right].statuses.end()) {
+                a_gameAPI->hand.cards[right].statuses.erase(std::find(a_gameAPI->hand.cards[right].statuses.begin(), a_gameAPI->hand.cards[right].statuses.end(), "Corruption"));
+                ++cured;
+            }
         }
 
-        if (a_gameAPI->hand.cards.at(right).statuses.size() != 0 && std::find(a_gameAPI->hand.cards.at(right).statuses.begin(), a_gameAPI->hand.cards.at(right).statuses.end(), "Corruption") != a_gameAPI->hand.cards.at(right).statuses.end()) {
-            a_gameAPI->hand.cards.at(right).statuses.erase(std::find(a_gameAPI->hand.cards.at(right).statuses.begin(), a_gameAPI->hand.cards.at(right).statuses.end(), "Corruption"));
-        }
+        a_gameAPI->hand.cards[a_index].Respond(a_gameAPI, std::format("I cured {} people.", cured));
     };
 
     CardType* healerCard = a_gameAPI->LoadCard(MOD_NAME, 
@@ -51,7 +60,7 @@ extern "C" void MOD_API ModLoad(TeraToma::GameAPI* const a_gameAPI) {
         CardAllegiance::VILLAGE, true);
     healerCard->canActivate = [](TeraToma::GameAPI* a_gameAPI, size_t a_index) {
         for (size_t i = 0; i < a_gameAPI->hand.cardCount; ++i) {
-            if (i != a_index && a_gameAPI->hand.cards.at(i).dead && !a_gameAPI->hand.cards.at(i).activated) {
+            if (i != a_index && a_gameAPI->hand.cards[i].dead && !a_gameAPI->hand.cards[i].activated) {
                 return true;
             }
         }
@@ -68,12 +77,12 @@ extern "C" void MOD_API ModLoad(TeraToma::GameAPI* const a_gameAPI) {
             //std::println("Pre i {}", i);
             i = a_gameAPI->selected[0];
             //std::println("Set i {}", i);
-            a_gameAPI->hand.cards.at(i).activated = true;
+            a_gameAPI->hand.cards[i].activated = true;
         };
         a_gameAPI->postSelectedFnptr = [&](TeraToma::GameAPI* a_gameAPI, size_t a_index) {
             //std::println("Post i {}", i);
-            if (a_gameAPI->cardTypes.at(a_gameAPI->hand.cards.at(i).names.back()).onActivate) {
-                a_gameAPI->cardTypes.at(a_gameAPI->hand.cards.at(i).names.back()).onActivate(a_gameAPI, i);
+            if (a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[i].names.back()).onActivate) {
+                a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[i].names.back()).onActivate(a_gameAPI, i);
             }
         };
     };
@@ -85,7 +94,7 @@ extern "C" void MOD_API ModLoad(TeraToma::GameAPI* const a_gameAPI) {
         "Knight", "The Knight can not die. Killing a Knight does 2 damage.", 
         CardAllegiance::VILLAGE, true);
     knightCard->canKill = [](TeraToma::GameAPI* a_gameAPI, size_t a_index) {
-        return !a_gameAPI->hand.cards.at(a_index).lies;
+        return !a_gameAPI->hand.cards[a_index].lies;
     };
     knightCard->onKill = [](TeraToma::GameAPI* a_gameAPI, size_t a_index) {
         a_gameAPI->Hurt(2);
@@ -208,7 +217,7 @@ extern "C" void MOD_API ModLoad(TeraToma::GameAPI* const a_gameAPI) {
             if (divinesCount > 0) {
                 cat += std::format(" {} divine", divinesCount);
             }
-            a_gameAPI->hand.cards.at(a_index).Respond(a_gameAPI, cat);
+            a_gameAPI->hand.cards[a_index].Respond(a_gameAPI, cat);
         };
     };
     oracleCard->onKill = [](TeraToma::GameAPI* a_gameAPI, size_t a_index) {
@@ -233,16 +242,16 @@ extern "C" void MOD_API ModLoad(TeraToma::GameAPI* const a_gameAPI) {
         int right = (((int)a_index + 2) % (int)a_gameAPI->hand.cardCount);
 
         std::println("Left {} Right {}", left, right);
-        std::println("Left {} Right {}", a_gameAPI->hand.cards.at(left).statuses.size(), a_gameAPI->hand.cards.at(right).statuses.size());
-        std::println("Left {} Right {}", a_gameAPI->hand.cards.at(left).names.back(), a_gameAPI->hand.cards.at(right).names.back());
-        std::println("Left {} Right {}", AllegianceStrings.at(a_gameAPI->cardTypes.at(a_gameAPI->hand.cards.at(left).names.back()).allegiance), AllegianceStrings.at(a_gameAPI->cardTypes.at(a_gameAPI->hand.cards.at(right).names.back()).allegiance));
+        std::println("Left {} Right {}", a_gameAPI->hand.cards[left].statuses.size(), a_gameAPI->hand.cards[right].statuses.size());
+        std::println("Left {} Right {}", a_gameAPI->hand.cards[left].names.back(), a_gameAPI->hand.cards[right].names.back());
+        std::println("Left {} Right {}", AllegianceStrings.at(a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[left].names.back()).allegiance), AllegianceStrings.at(a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[right].names.back()).allegiance));
 
-        if (a_gameAPI->cardTypes.at(a_gameAPI->hand.cards.at(left).names.back()).allegiance != CardAllegiance::DEMONIC && (a_gameAPI->hand.cards.at(left).statuses.size() == 0 || std::find(a_gameAPI->hand.cards.at(left).statuses.begin(), a_gameAPI->hand.cards.at(left).statuses.end(), "Corruption") == a_gameAPI->hand.cards.at(left).statuses.end())) {
-            a_gameAPI->hand.cards.at(left).statuses.push_back("Corruption");
+        if (a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[left].names.back()).allegiance != CardAllegiance::DEMONIC && (a_gameAPI->hand.cards[left].statuses.size() == 0 || std::find(a_gameAPI->hand.cards[left].statuses.begin(), a_gameAPI->hand.cards[left].statuses.end(), "Corruption") == a_gameAPI->hand.cards[left].statuses.end())) {
+            a_gameAPI->hand.cards[left].statuses.push_back("Corruption");
         }
 
-        if (a_gameAPI->cardTypes.at(a_gameAPI->hand.cards.at(right).names.back()).allegiance != CardAllegiance::DEMONIC && (a_gameAPI->hand.cards.at(right).statuses.size() == 0 || std::find(a_gameAPI->hand.cards.at(right).statuses.begin(), a_gameAPI->hand.cards.at(right).statuses.end(), "Corruption") == a_gameAPI->hand.cards.at(right).statuses.end())) {
-            a_gameAPI->hand.cards.at(right).statuses.push_back("Corruption");
+        if (a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[right].names.back()).allegiance != CardAllegiance::DEMONIC && (a_gameAPI->hand.cards[right].statuses.size() == 0 || std::find(a_gameAPI->hand.cards[right].statuses.begin(), a_gameAPI->hand.cards[right].statuses.end(), "Corruption") == a_gameAPI->hand.cards[right].statuses.end())) {
+            a_gameAPI->hand.cards[right].statuses.push_back("Corruption");
         }
 
         a_gameAPI->hand.cards[a_index].lies = true;
@@ -264,7 +273,7 @@ extern "C" void MOD_API ModLoad(TeraToma::GameAPI* const a_gameAPI) {
         }
 
         uint32_t index = RandomUniformUInt32(0, (uint32_t)(available.size()));
-        a_gameAPI->hand.cards.at(a_index).displayName = available.at(index);
+        a_gameAPI->hand.cards[a_index].displayName = available.at(index);
     };
     plagueBringerCard->canActivate = [](TeraToma::GameAPI* a_gameAPI, size_t a_index) {
         return a_gameAPI->hand.cards[a_index].displayName != a_gameAPI->hand.cards[a_index].names.back() && a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[a_index].displayName).canActivate && a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[a_index].displayName).canActivate(a_gameAPI, a_index);
@@ -336,7 +345,7 @@ extern "C" void MOD_API ModLoad(TeraToma::GameAPI* const a_gameAPI) {
         }
 
         uint32_t index = RandomUniformUInt32(0, (uint32_t)(available.size()));
-        a_gameAPI->hand.cards.at(a_index).displayName = available.at(index);
+        a_gameAPI->hand.cards[a_index].displayName = available.at(index);
     };
     werewolfCard->canActivate = [](TeraToma::GameAPI* a_gameAPI, size_t a_index) {
         return a_gameAPI->hand.cards[a_index].displayName != a_gameAPI->hand.cards[a_index].names.back() && a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[a_index].displayName).canActivate && a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[a_index].displayName).canActivate(a_gameAPI, a_index);
@@ -405,8 +414,20 @@ extern "C" void MOD_API ModLoad(TeraToma::GameAPI* const a_gameAPI) {
     };
 
     CardType* zombieCard = a_gameAPI->LoadCard(MOD_NAME, 
-        "Zombie", "The Zombie will .", 
+        "Zombie", "The Zombie will kill unflipped characters one space away when flipped.", 
         CardAllegiance::UNDEATH, false);
+    zombieCard->onFlip = [](TeraToma::GameAPI* a_gameAPI, size_t a_index) {
+        int left = ((a_gameAPI->hand.cardCount + (int)a_index - 1) % (int)a_gameAPI->hand.cardCount);
+        int right = (((int)a_index + 1) % (int)a_gameAPI->hand.cardCount);
+
+        if (!a_gameAPI->hand.cards[left].flipped) {
+            a_gameAPI->TryKill(left);
+        }
+
+        if (!a_gameAPI->hand.cards[right].flipped) {
+            a_gameAPI->TryKill(right);
+        }
+    };
 
     std::println("We have exited the Base Game mod loading");
 }    

@@ -1,7 +1,11 @@
 #include <TeraToma/GameAPI.h>
+#include <TeraToma/Mod.h>
 #include <utility>
 #include <tuple>
 #include <print>
+#include <filesystem>
+#include <iostream>
+#include <fstream>
 
 namespace TeraToma {
     GameAPI::GameAPI() {
@@ -15,6 +19,39 @@ namespace TeraToma {
         maxSelect = 0;
         healthSoftCap = 10;
         health = healthSoftCap;
+    }
+
+    void GameAPI::LoadMods(void) {
+        for (std::filesystem::directory_entry const& dirEntry : std::filesystem::directory_iterator(std::filesystem::current_path().append("Mods"))) {
+            if (dirEntry.is_regular_file() && dirEntry.path().extension().string() == ".dll") {
+                std::println("{} {} {}", dirEntry.path().stem().string(), dirEntry.path().extension().string(), dirEntry.path().string());
+                mods.emplace(std::piecewise_construct, std::forward_as_tuple(dirEntry.path().stem().string()), std::forward_as_tuple(dirEntry.path().stem().string(), dirEntry.path().wstring()));
+            }
+        }
+    }
+    
+    void GameAPI::DoModLoading(void) {
+        for (std::pair<const std::string, TeraToma::Mod>& pair : mods) {
+            pair.second.Load(this);
+        }
+    }
+
+    void GameAPI::DoModInitialization(void) {
+        for (std::pair<const std::string, TeraToma::Mod>& pair : mods) {
+            pair.second.Initialize(this);
+        }
+    }
+
+    void GameAPI::DoModUninitialization(void) {
+        for (std::pair<const std::string, TeraToma::Mod>& pair : mods) {
+            pair.second.Uninitialize(this);
+        }
+    }
+
+    void GameAPI::DoModUnloading(void) {
+        for (std::pair<const std::string, TeraToma::Mod>& pair : mods) {
+            pair.second.Unload(this);
+        }
     }
 
     CardType* GameAPI::LoadCard(std::string_view a_mod, std::string_view a_name, std::string_view a_description, CardAllegiance a_allegiance, bool a_canWin) {

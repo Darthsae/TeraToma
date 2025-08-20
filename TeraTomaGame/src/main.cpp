@@ -85,6 +85,7 @@ int main(int argc, char const **) {
     float cardLargeHalfHeight = cardLargeHeight * 0.5f;
     int wonk = (int)(TeraToma::WINDOW_WIDTH / cardWidth);
     int largeCardAmount = (int)(TeraToma::WINDOW_WIDTH / cardLargeWidth);
+    SDL_FRect rectToUse = {0, 0, cardLargeWidth, cardLargeHeight};
     std::vector<std::string> cardChoices = std::vector<std::string>();
 
     SDL_SetAppMetadata(TeraToma::APPLICATION_TITLE, "0.1.0.0", "com.darthsae.teratoma");
@@ -119,13 +120,7 @@ int main(int argc, char const **) {
     #pragma region Loading Mods and Assets
     std::println("Pre Mods");
     std::println("Mods {}", std::filesystem::current_path().append("Mods").string());
-    for (std::filesystem::directory_entry const& dir_entry : std::filesystem::directory_iterator(std::filesystem::current_path().append("Mods"))) {
-        std::println("Checking {} it is {} and extension {}", dir_entry.path().string(), dir_entry.is_regular_file(), dir_entry.path().extension().string());
-        if (dir_entry.is_regular_file() && dir_entry.path().extension().string() == ".dll") {
-            std::println("{} {} {}", dir_entry.path().stem().string(), dir_entry.path().extension().string(), dir_entry.path().string());
-            gameAPI.mods.emplace(std::piecewise_construct, std::forward_as_tuple(dir_entry.path().stem().string()), std::forward_as_tuple(dir_entry.path().stem().string(), dir_entry.path().wstring()));
-        }
-    }
+    gameAPI.LoadMods();
 
     std::println("Pre Images");
     for (std::filesystem::directory_entry const& dir_entry : std::filesystem::recursive_directory_iterator(std::filesystem::current_path().append("Assets"))) {
@@ -165,14 +160,10 @@ int main(int argc, char const **) {
     };
 
     std::println("Pre Mod Load");
-    for (std::pair<const std::string, TeraToma::Mod>& pair : gameAPI.mods) {
-        pair.second.Load(&gameAPI);
-    }
+    gameAPI.DoModLoading();
 
     std::println("Pre Mod Initialize");
-    for (std::pair<const std::string, TeraToma::Mod>& pair : gameAPI.mods) {
-        pair.second.Initialize(&gameAPI);
-    }
+    gameAPI.DoModInitialization();
 
     std::vector<std::string> normal = std::vector<std::string>();
     std::vector<std::string> unique = std::vector<std::string>();
@@ -460,7 +451,7 @@ int main(int argc, char const **) {
     element->components.emplace(std::piecewise_construct, 
         std::forward_as_tuple("Texture"), 
         std::forward_as_tuple(
-            std::make_shared<TeraToma::UI::UIImageComponent>(
+            std::make_shared<TeraToma::UI::UIImageComponent>( 
                 std::string_view("UI Panel"), 
                 true
             )
@@ -1034,9 +1025,7 @@ int main(int argc, char const **) {
         SDL_SetRenderDrawColor(renderer, 5, 5, 25, SDL_ALPHA_OPAQUE);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_RenderClear(renderer);
-
-        SDL_FRect rectToUse = {0, 0, cardLargeWidth, cardLargeHeight};
-
+        
         switch (gameAPI.gameState) {
             case TeraToma::GameState::MAIN_MENU:
                 break;
@@ -1088,14 +1077,10 @@ int main(int argc, char const **) {
     assets.Uninitialize();
 
     std::println("Pre Mod Uninitialize");
-    for (std::pair<const std::string, TeraToma::Mod>& pair : gameAPI.mods) {
-        pair.second.Uninitialize(&gameAPI);
-    }
+    gameAPI.DoModUninitialization();
 
     std::println("Pre Mod Unload");
-    for (std::pair<const std::string, TeraToma::Mod>& pair : gameAPI.mods) {
-        pair.second.Unload(&gameAPI);
-    }
+    gameAPI.DoModUnloading();
 
     gameAPI.Destroy();
     

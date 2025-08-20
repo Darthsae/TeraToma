@@ -45,7 +45,7 @@ namespace TeraToma {
     class GameAPI {
     public:
         /// @brief 
-        GameAPI();
+        GameAPI(void);
 
         /// @brief 
         std::unordered_map<std::string, CardType> cardTypes;
@@ -92,6 +92,16 @@ namespace TeraToma {
         /// @brief 
         std::function<void(GameAPI*, size_t)> postKillFnptr = NULL;
 
+        /// @brief Load all mods.
+        void LoadMods(void);
+        /// @brief 
+        void DoModLoading(void);
+        /// @brief 
+        void DoModInitialization(void);
+        /// @brief 
+        void DoModUninitialization(void); 
+        /// @brief 
+        void DoModUnloading(void);
         /// @brief 
         /// @param  
         /// @param  

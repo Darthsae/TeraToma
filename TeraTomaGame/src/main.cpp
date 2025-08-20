@@ -915,7 +915,7 @@ int main(int argc, char const **) {
                                     }
                                     break;
                             }
-                        break;
+                            break;
                     }
                     break;
             }

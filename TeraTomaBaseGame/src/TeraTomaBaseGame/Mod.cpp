@@ -284,7 +284,6 @@ extern "C" void MOD_API ModLoad(TeraToma::GameAPI* const a_gameAPI) {
         }
     };
 
-
     CardType* urchinCard = a_gameAPI->LoadCard(MOD_NAME, 
         "Urchin", "The Urchin will say one random liar. Killing an Urchin does 2 damage.", 
         CardAllegiance::OUTCAST, true);

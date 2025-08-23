@@ -11,7 +11,8 @@
 #define TeraTomaLoadFunction(a_libraryHandle, a_functionName) GetProcAddress(a_libraryHandle, a_functionName)
 #define TeraTomaCloseLibrary(a_libraryHandle) FreeLibrary(a_libraryHandle)
 #define TeraTomaCallPrefix __stdcall
-#elif defined(__linux__)
+#endif
+#if defined(__linux__) || defined(__unix__) || defined(linux)
 #include <dlfcn.h>
 #define TeraTomaLibraryHandle void*
 #define TeraTomaLoadLibrary(a_libraryName) dlopen(a_libraryName.c_str(), RTLD_LAZY)

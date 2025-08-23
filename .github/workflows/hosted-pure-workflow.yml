@@ -47,6 +47,17 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-24.04' }}
         run: |
           sudo apt install libltdl-dev
+
+      - name: Update GCC
+        if: ${{ matrix.os == 'ubuntu-24.04' }}
+        run: |
+          sudo apt update
+          sudo apt install g++-14
+          
+      - name: Set GCC 14 as default
+        if: ${{ matrix.os == 'ubuntu-24.04' }}
+        run: |
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100
           
       - uses: actions/github-script@v7
         with:

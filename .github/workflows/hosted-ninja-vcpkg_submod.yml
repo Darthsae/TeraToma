@@ -62,5 +62,5 @@ jobs:
       - name: Run CMake+vcpkg+Ninja+CTest to build packages and generate/build/test the code.
         uses: lukka/run-cmake@v10
         with:
-          configurePreset: 'x64'
-          buildPreset: 'x64-release'
+          configurePreset: 'x64-multi'
+          buildPreset: 'x64-multi-release'

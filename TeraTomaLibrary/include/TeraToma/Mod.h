@@ -3,7 +3,20 @@
 #define MOD_H
 #include <string>
 #include <vector>
+
+#if defined(_WIN32) || defined(_WIN64)
 #include <Windows.h>
+#define TeraTomaLibraryHandle HINSTANCE
+#define TeraTomaLoadLibrary(a_libraryName) LoadLibraryW(a_libraryName.c_str())
+#define TeraTomaLoadFunction(a_libraryHandle, a_functionName) GetProcAddress(a_libraryHandle, a_functionName)
+#define TeraTomaCloseLibrary(a_libraryHandle) FreeLibrary(a_libraryHandle)
+#elif defined(__linux__)
+#include <dlfcn.h>
+#define TeraTomaLibraryHandle void*
+#define TeraTomaLoadLibrary(a_libraryName) dlopen(a_libraryName.c_str(), RTLD_LAZY)
+#define TeraTomaLoadFunction(a_libraryHandle, a_functionName) dlsym(a_libraryHandle, a_functionName)
+#define TeraTomaCloseLibrary(a_libraryHandle) dlclose(a_libraryHandle)
+#endif
 
 namespace TeraToma {
     class Mod;
@@ -28,7 +41,7 @@ namespace TeraToma {
         /// @brief 
         std::string name;
         /// @brief 
-        HINSTANCE library;
+        TeraTomaLibraryHandle library;
         /// @brief 
         bool enabled = true;
 

@@ -103,6 +103,8 @@ namespace TeraToma {
         /// @brief 
         void DoModUnloading(void);
         /// @brief 
+        void DealStartingHand(void);
+        /// @brief 
         /// @param  
         /// @param  
         /// @param  

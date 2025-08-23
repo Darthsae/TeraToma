@@ -1,5 +1,6 @@
 #include <TeraToma/GameAPI.h>
 #include <TeraToma/Mod.h>
+#include <Random.h>
 #include <utility>
 #include <tuple>
 #include <print>
@@ -51,6 +52,62 @@ namespace TeraToma {
     void GameAPI::DoModUnloading(void) {
         for (std::pair<const std::string, TeraToma::Mod>& pair : mods) {
             pair.second.Unload(this);
+        }
+    }
+
+    void GameAPI::DealStartingHand(void) {
+        std::vector<std::string> normal = std::vector<std::string>();
+        std::vector<std::string> unique = std::vector<std::string>();
+        std::vector<std::string> normalOpposition = std::vector<std::string>();
+        std::vector<std::string> uniqueOpposition = std::vector<std::string>();
+
+        for (std::pair<const std::string, TeraToma::CardType>& pair : cardTypes) {
+            //std::println("{}", pair.first);
+            switch (pair.second.allegiance) {
+                case TeraToma::CardAllegiance::VILLAGE:
+                case TeraToma::CardAllegiance::NEUTRAL:
+                case TeraToma::CardAllegiance::MONSTER:
+                    if (pair.second.canWin) {
+                        normal.emplace_back(pair.first);
+                    } else {
+                        normalOpposition.emplace_back(pair.first);
+                    }
+                    break;
+                case TeraToma::CardAllegiance::OUTCAST:
+                case TeraToma::CardAllegiance::OUTSIDE:
+                case TeraToma::CardAllegiance::UNDEATH:
+                case TeraToma::CardAllegiance::DEMONIC:
+                case TeraToma::CardAllegiance::DIVINES:
+                    if (pair.second.canWin) {
+                        unique.emplace_back(pair.first);
+                    } else {
+                        uniqueOpposition.emplace_back(pair.first);
+                    }
+                    break;
+            }
+        }
+
+        uint32_t option;
+        size_t count;
+        count = std::min<size_t>(3, normal.size());
+        for (size_t i = 0; i < count; ++i) {
+            option = RandomUniformUInt32(0, (uint32_t)normal.size());
+            deck.AddCard(normal[option]);
+            normal.erase(normal.begin() + option);
+        }
+
+        count = std::min<size_t>(1, unique.size());
+        for (size_t i = 0; i < count; ++i) {
+            option = RandomUniformUInt32(0, (uint32_t)unique.size());
+            deck.AddCard(unique[option]);
+            unique.erase(unique.begin() + option);
+        }
+
+        count = std::min<size_t>(1, normalOpposition.size());
+        for (size_t i = 0; i < count; ++i) {
+            option = RandomUniformUInt32(0, (uint32_t)normalOpposition.size());
+            deck.AddCard(normalOpposition[option]);
+            normalOpposition.erase(normalOpposition.begin() + option);
         }
     }
 

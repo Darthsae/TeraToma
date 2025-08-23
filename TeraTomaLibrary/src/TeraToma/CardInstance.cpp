@@ -25,6 +25,22 @@ namespace TeraToma {
         }
     }
 
+    void CardInstance::ShowResponse(GameAPI* a_gameAPI) {
+        //std::println("We have entered the response: {}", a_response);
+        if (onShowResponse) {
+            //std::println("We have a response hook: {}", a_response);
+            onShowResponse(a_gameAPI, this);
+        }
+    }
+
+    void CardInstance::HideResponse(GameAPI* a_gameAPI) {
+        //std::println("We have entered the response: {}", a_response);
+        if (onHideResponse) {
+            //std::println("We have a response hook: {}", a_response);
+            onHideResponse(a_gameAPI, this);
+        }
+    }
+
     void CardInstance::UpdateDisplay(GameAPI* a_gameAPI) {
         if (displayName.empty()) {
             displayName = names.back();

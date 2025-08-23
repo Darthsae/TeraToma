@@ -53,6 +53,13 @@ extern "C" void MOD_API ModLoad(TeraToma::GameAPI* const a_gameAPI) {
         }
 
         a_gameAPI->hand.cards[a_index].Respond(a_gameAPI, std::format("I cured {} people.", cured));
+        a_gameAPI->hand.cards[a_index].HideResponse(a_gameAPI);
+    };
+    doctorCard->canActivate = [](TeraToma::GameAPI* a_gameAPI, size_t a_index) {
+        return true;
+    };
+    doctorCard->onActivate = [](TeraToma::GameAPI* a_gameAPI, size_t a_index) {
+        a_gameAPI->hand.cards[a_index].ShowResponse(a_gameAPI);
     };
 
     CardType* healerCard = a_gameAPI->LoadCard(MOD_NAME, 

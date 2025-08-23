@@ -78,11 +78,21 @@ namespace TeraToma {
 
         /// @brief 
         std::function<void(GameAPI*, CardInstance*, std::string_view)> onRespond = NULL;
+        /// @brief 
+        std::function<void(GameAPI*, CardInstance*)> onShowResponse = NULL;
+        /// @brief 
+        std::function<void(GameAPI*, CardInstance*)> onHideResponse = NULL;
 
         /// @brief 
         /// @param  
         /// @param  
         void Respond(GameAPI*, std::string_view);
+        /// @brief 
+        /// @param  
+        void ShowResponse(GameAPI*);
+        /// @brief 
+        /// @param  
+        void HideResponse(GameAPI*);
         /// @brief 
         /// @param  
         void UpdateDisplay(GameAPI*);

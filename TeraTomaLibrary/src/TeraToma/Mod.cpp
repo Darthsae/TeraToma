@@ -5,11 +5,11 @@ namespace TeraToma {
     Mod::Mod(std::string a_modName, std::wstring a_path) {
         //std::println("We are loading the mod.");
         name = a_modName;
-        library = LoadLibraryW(a_path.c_str());
-        modLoadFnptr = (ModLoadFnptr)GetProcAddress(library, "ModLoad");
-        modInitializeFnptr = (ModInitializeFnptr)GetProcAddress(library, "ModInitialize");
-        modUninitializeFnptr = (ModUninitializeFnptr)GetProcAddress(library, "ModUninitialize");
-        modUnloadFnptr = (ModUnloadFnptr)GetProcAddress(library, "ModUnload");
+        library = TeraTomaLoadLibrary(a_path);
+        modLoadFnptr = (ModLoadFnptr)TeraTomaLoadFunction(library, "ModLoad");
+        modInitializeFnptr = (ModInitializeFnptr)TeraTomaLoadFunction(library, "ModInitialize");
+        modUninitializeFnptr = (ModUninitializeFnptr)TeraTomaLoadFunction(library, "ModUninitialize");
+        modUnloadFnptr = (ModUnloadFnptr)TeraTomaLoadFunction(library, "ModUnload");
         //std::println("Lib {} Load {} Init {} Uninit {} Unload {}", library != NULL, modLoadFnptr != NULL, modInitializeFnptr != NULL, modUninitializeFnptr != NULL, modUnloadFnptr != NULL);
     }
 
@@ -38,6 +38,6 @@ namespace TeraToma {
     }
 
     Mod::~Mod() {
-        FreeLibrary(library);
+        TeraTomaCloseLibrary(library);
     }
 }

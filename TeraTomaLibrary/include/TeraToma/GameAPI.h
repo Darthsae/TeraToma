@@ -5,6 +5,16 @@
 #include <unordered_map>
 #include <functional>
 
+#if defined(_WIN32) || defined(_WIN64)
+#define MOD_FILE_EXTENSION ".dll"
+#endif
+#if defined(__linux__) || defined(__unix__) || defined(linux)
+#define MOD_FILE_EXTENSION ".so"
+#endif
+#if defined(__APPLE__)
+#define MOD_FILE_EXTENSION ".dylib"
+#endif
+
 namespace TeraToma {
     /// @brief 
     enum struct GameState {

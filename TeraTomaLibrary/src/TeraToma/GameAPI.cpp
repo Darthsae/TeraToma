@@ -24,7 +24,7 @@ namespace TeraToma {
 
     void GameAPI::LoadMods(void) {
         for (std::filesystem::directory_entry const& dirEntry : std::filesystem::directory_iterator(std::filesystem::current_path().append("Mods"))) {
-            if (dirEntry.is_regular_file() && dirEntry.path().extension().string() == ".dll") {
+            if (dirEntry.is_regular_file() && dirEntry.path().extension().string() == MOD_FILE_EXTENSION) {
                 std::println("{} {} {}", dirEntry.path().stem().string(), dirEntry.path().extension().string(), dirEntry.path().string());
                 mods.emplace(std::piecewise_construct, std::forward_as_tuple(dirEntry.path().stem().string()), std::forward_as_tuple(dirEntry.path().stem().string(), dirEntry.path().wstring()));
             }

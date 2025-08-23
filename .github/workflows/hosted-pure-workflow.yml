@@ -87,7 +87,7 @@ jobs:
       # store the built packages artifacts.
       - name: Restore from cache the dependencies and generate project files
         run: |
-          cmake --preset x64
+          cmake --preset x64-multi
 
       # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
       #
@@ -96,4 +96,4 @@ jobs:
       # run: cmake --build --preset ninja-vcpkg --config Release
       - name: Build (Release configuration)
         run: |
-          cmake --build --preset x64-release
+          cmake --build --preset x64-multi-release

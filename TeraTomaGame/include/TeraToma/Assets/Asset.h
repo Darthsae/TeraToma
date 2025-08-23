@@ -15,7 +15,7 @@ namespace TeraToma {
             std::string name;
 
             /// @brief 
-            virtual void Unload() = NULL;
+            virtual void Unload() = 0;
         };
     }
 }

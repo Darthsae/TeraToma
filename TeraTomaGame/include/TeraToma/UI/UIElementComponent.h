@@ -23,7 +23,7 @@ namespace TeraToma::UI {
         /// @param  
         /// @param  
         /// @param  
-        virtual void Hookup(SDL_Renderer*, GameAPI*, Assets::Assets*, UILayer*, UIElement*) = NULL;
+        virtual void Hookup(SDL_Renderer*, GameAPI*, Assets::Assets*, UILayer*, UIElement*) = 0;
     };
 }
 #endif

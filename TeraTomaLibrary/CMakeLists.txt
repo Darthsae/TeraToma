@@ -46,6 +46,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/Debug/${a_outputDirectory}"
     RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/Release/${a_outputDirectory}")
 
+set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 foreach(AssetFile IN LISTS "${PROJECT_NAME}AssetFiles")
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${AssetFile}" "${CMAKE_BINARY_DIR}/Debug/${a_outputDirectory}/${AssetFile}" COPYONLY)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${AssetFile}" "${CMAKE_BINARY_DIR}/Release/${a_outputDirectory}/${AssetFile}" COPYONLY)

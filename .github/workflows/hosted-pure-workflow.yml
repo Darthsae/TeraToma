@@ -47,6 +47,17 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-24.04' }}
         run: |
           sudo apt install libltdl-dev
+
+      - name: Update GCC
+        if: ${{ matrix.os == 'ubuntu-24.04' }}
+        run: |
+          sudo apt update
+          sudo apt install g++-14
+          
+      - name: Set GCC 14 as default
+        if: ${{ matrix.os == 'ubuntu-24.04' }}
+        run: |
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100
           
       - uses: actions/github-script@v7
         with:
@@ -63,6 +74,11 @@ jobs:
 
       # Setup the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
       - uses: lukka/get-cmake@latest
+
+      - name: Check GCC
+        if: ${{ matrix.os == 'ubuntu-24.04' }}
+        run: |
+          g++ --version
 
       # Restore vcpkg from the GitHub Action cache service. Note that packages are restored by vcpkg's binary caching
       # when it is being run afterwards by CMake.

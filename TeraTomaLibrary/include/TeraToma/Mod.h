@@ -6,14 +6,7 @@
 #include <cstdlib>
 #include <stdint.h>
 
-std::string StringFromWString(std::wstring a_wstring) {
-    size_t len = wcstombs(nullptr, a_wstring.c_str(), 0) + 1;
-    char* buffer = new char[len];
-    wcstombs(buffer, a_wstring.c_str(), len);
-    std::string str(buffer);
-    delete[] buffer;
-    return str;
-}
+std::string StringFromWString(std::wstring);
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <Windows.h>
@@ -24,6 +17,14 @@ std::string StringFromWString(std::wstring a_wstring) {
 #define TeraTomaCallPrefix __stdcall
 #endif
 #if defined(__linux__) || defined(__unix__) || defined(linux)
+#include <dlfcn.h>
+#define TeraTomaLibraryHandle void*
+#define TeraTomaLoadLibrary(a_libraryName) dlopen(StringFromWString(a_libraryName).c_str(), RTLD_LAZY)
+#define TeraTomaLoadFunction(a_libraryHandle, a_functionName) dlsym(a_libraryHandle, a_functionName)
+#define TeraTomaCloseLibrary(a_libraryHandle) dlclose(a_libraryHandle)
+#define TeraTomaCallPrefix 
+#endif
+#if defined(__APPLE__)
 #include <dlfcn.h>
 #define TeraTomaLibraryHandle void*
 #define TeraTomaLoadLibrary(a_libraryName) dlopen(StringFromWString(a_libraryName).c_str(), RTLD_LAZY)

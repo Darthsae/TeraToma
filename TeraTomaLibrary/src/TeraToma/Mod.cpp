@@ -1,6 +1,15 @@
 #include <TeraToma/Mod.h>
 #include <print>
 
+std::string StringFromWString(std::wstring a_wstring) {
+    size_t len = wcstombs(nullptr, a_wstring.c_str(), 0) + 1;
+    char* buffer = new char[len];
+    wcstombs(buffer, a_wstring.c_str(), len);
+    std::string str(buffer);
+    delete[] buffer;
+    return str;
+}
+
 namespace TeraToma {
     Mod::Mod(std::string a_modName, std::wstring a_path) {
         //std::println("We are loading the mod.");

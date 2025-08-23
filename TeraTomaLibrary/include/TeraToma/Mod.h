@@ -10,12 +10,14 @@
 #define TeraTomaLoadLibrary(a_libraryName) LoadLibraryW(a_libraryName.c_str())
 #define TeraTomaLoadFunction(a_libraryHandle, a_functionName) GetProcAddress(a_libraryHandle, a_functionName)
 #define TeraTomaCloseLibrary(a_libraryHandle) FreeLibrary(a_libraryHandle)
+#define TeraTomaCallPrefix __stdcall
 #elif defined(__linux__)
 #include <dlfcn.h>
 #define TeraTomaLibraryHandle void*
 #define TeraTomaLoadLibrary(a_libraryName) dlopen(a_libraryName.c_str(), RTLD_LAZY)
 #define TeraTomaLoadFunction(a_libraryHandle, a_functionName) dlsym(a_libraryHandle, a_functionName)
 #define TeraTomaCloseLibrary(a_libraryHandle) dlclose(a_libraryHandle)
+#define TeraTomaCallPrefix __cdecl
 #endif
 
 namespace TeraToma {
@@ -25,10 +27,10 @@ namespace TeraToma {
 #include <TeraToma/GameAPI.h>
 
 namespace TeraToma {
-    typedef void (__stdcall *ModLoadFnptr)(GameAPI* const);
-    typedef void (__stdcall *ModInitializeFnptr)(GameAPI* const);
-    typedef void (__stdcall *ModUninitializeFnptr)(GameAPI* const);
-    typedef void (__stdcall *ModUnloadFnptr)(GameAPI* const);
+    typedef void (TeraTomaCallPrefix *ModLoadFnptr)(GameAPI* const);
+    typedef void (TeraTomaCallPrefix *ModInitializeFnptr)(GameAPI* const);
+    typedef void (TeraTomaCallPrefix *ModUninitializeFnptr)(GameAPI* const);
+    typedef void (TeraTomaCallPrefix *ModUnloadFnptr)(GameAPI* const);
 
     /// @brief 
     class Mod {

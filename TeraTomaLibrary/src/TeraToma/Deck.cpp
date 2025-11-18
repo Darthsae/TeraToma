@@ -23,4 +23,8 @@ namespace TeraToma {
 
         return handCards;
     }
+
+    void Deck::Clear(void) {
+        cards.clear();
+    }
 }

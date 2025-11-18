@@ -20,6 +20,8 @@ namespace TeraToma {
         maxSelect = 0;
         healthSoftCap = 10;
         health = healthSoftCap;
+        round = 0;
+        turnTick = 0;
     }
 
     void GameAPI::LoadMods(void) {
@@ -190,16 +192,11 @@ namespace TeraToma {
     }
     
     void GameAPI::Select(size_t a_index) {
-        //std::println("Outside If: a_index {} selected size {}", a_index, selected.size());
         if ((selected.size() == 0 || std::find(selected.begin(), selected.end(), a_index) == selected.end()) && validCardSelectionFnptr && validCardSelectionFnptr(this, a_index)) {
-            //std::println("Before Push Back: a_index {} selected size {}", a_index, selected.size());
             selected.push_back(a_index);
-            //std::println("After Push Back: a_index {} selected size {}", a_index, selected.size());
-            std::println("{} <= {} == {}", maxSelect, selected.size(), maxSelect <= selected.size());
+            //std::println("{} <= {} == {}", maxSelect, selected.size(), maxSelect <= selected.size());
             if (maxSelect <= selected.size()) {
-                //std::println("Inside Max: a_index {} selected size {}", a_index, selected.size());
                 if (selectedFnptr) {
-                    //std::println("Inside SelectedFnptr: a_index {} selected size {}", a_index, selected.size());
                     selectedFnptr(this, selecting);
                     selectedFnptr = NULL;
                 }
@@ -209,9 +206,7 @@ namespace TeraToma {
                 selected.clear();
                 maxSelect = 0;
 
-                //std::println("Before PostSelectedFnptr: a_index {} selected size {}", a_index, selected.size());
                 if (postSelectedFnptr) {
-                    //std::println("Inside PostSelectedFnptr: a_index {} selected size {}", a_index, selected.size());
                     postSelectedFnptr(this, selecting);
                     postSelectedFnptr = NULL;
                 }
@@ -251,7 +246,7 @@ namespace TeraToma {
         }
     }
 
-    void GameAPI::Destroy() {
+    void GameAPI::Destroy(void) {
         validCardSelectionFnptr = NULL;
         selectedFnptr = NULL;
         postSelectedFnptr = NULL;
@@ -262,5 +257,13 @@ namespace TeraToma {
         cardTypes.clear();
         statusTypes.clear();
         mods.clear();
+    }
+
+    void GameAPI::Reset(void) {
+        deck.Clear();
+        healthSoftCap = 10;
+        health = healthSoftCap;
+        round = 0;
+        turnTick = 0;
     }
 }

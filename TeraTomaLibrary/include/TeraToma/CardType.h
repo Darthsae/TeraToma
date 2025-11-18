@@ -34,6 +34,8 @@ namespace TeraToma {
         /// @brief 
         CardIndexedActionFnptr_t onPostResolve = NULL;
         /// @brief 
+        CardIndexedActionFnptr_t onLyingPostResolve = NULL;
+        /// @brief 
         CardIndexedPredicateFnptr_t canFlip = NULL;
         /// @brief 
         CardIndexedActionFnptr_t onFlip = NULL;

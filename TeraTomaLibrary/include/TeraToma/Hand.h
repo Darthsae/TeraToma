@@ -21,7 +21,7 @@ namespace TeraToma {
         /// @brief 
         /// @param  
         /// @param  
-        Hand(GameAPI*, std::vector<std::string>);
+        Hand(GameAPI*, const std::vector<std::string>&);
 
         /// @brief 
         std::vector<size_t> resolutionOrder;
@@ -33,6 +33,9 @@ namespace TeraToma {
         /// @brief 
         /// @param  
         void Resolve(GameAPI*);
+
+        /// @brief 
+        void Clear(void);
     };
 }
 #endif

@@ -94,6 +94,12 @@ namespace TeraToma {
         uint64_t blindness = 0;
 
         /// @brief 
+        uint64_t turnTick = 0;
+
+        /// @brief 
+        uint64_t round = 0;
+
+        /// @brief 
         std::function<void(std::string_view, CardType*)> postLoadCardFnptr = NULL;
         /// @brief 
         std::function<void(GameAPI*)> postWinFnptr = NULL;
@@ -151,6 +157,8 @@ namespace TeraToma {
         void TryKill(size_t);
         /// @brief 
         void Destroy(void);
+        /// @brief 
+        void Reset(void);
     };
 }
 #endif

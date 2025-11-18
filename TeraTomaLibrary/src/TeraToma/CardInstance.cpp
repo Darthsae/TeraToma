@@ -10,7 +10,6 @@ namespace TeraToma {
     }
     
     CardInstance::CardInstance(std::string a_cardType, size_t a_index) {
-        //std::println("{} {}", a_cardType, a_index);
         names = std::vector<std::string>();
         names.emplace_back(a_cardType);
         statuses = std::vector<std::string>();
@@ -18,25 +17,19 @@ namespace TeraToma {
     }
 
     void CardInstance::Respond(GameAPI* a_gameAPI, std::string_view a_response) {
-        //std::println("We have entered the response: {}", a_response);
         if (onRespond) {
-            //std::println("We have a response hook: {}", a_response);
             onRespond(a_gameAPI, this, a_response);
         }
     }
 
     void CardInstance::ShowResponse(GameAPI* a_gameAPI) {
-        //std::println("We have entered the response: {}", a_response);
         if (onShowResponse) {
-            //std::println("We have a response hook: {}", a_response);
             onShowResponse(a_gameAPI, this);
         }
     }
 
     void CardInstance::HideResponse(GameAPI* a_gameAPI) {
-        //std::println("We have entered the response: {}", a_response);
         if (onHideResponse) {
-            //std::println("We have a response hook: {}", a_response);
             onHideResponse(a_gameAPI, this);
         }
     }

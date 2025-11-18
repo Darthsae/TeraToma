@@ -17,10 +17,14 @@ namespace TeraToma {
         /// @brief 
         /// @param  
         void AddCard(std::string);
+
         /// @brief 
         /// @param  
         /// @return 
         std::vector<std::string> Shuffle(size_t);
+        
+        /// @brief 
+        void Clear(void);
     };
 }
 #endif

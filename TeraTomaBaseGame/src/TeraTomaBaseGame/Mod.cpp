@@ -55,6 +55,11 @@ extern "C" void MOD_API ModLoad(TeraToma::GameAPI* const a_gameAPI) {
         a_gameAPI->hand.cards[a_index].Respond(a_gameAPI, std::format("I cured {} people.", cured));
         a_gameAPI->hand.cards[a_index].HideResponse(a_gameAPI);
     };
+    doctorCard->onLyingPostResolve = [](TeraToma::GameAPI* a_gameAPI, size_t a_index) {
+        int cured = RandomUniformUInt32(0, 2);
+        a_gameAPI->hand.cards[a_index].Respond(a_gameAPI, std::format("I cured {} people.", cured));
+        a_gameAPI->hand.cards[a_index].HideResponse(a_gameAPI);
+    };
     doctorCard->canActivate = [](TeraToma::GameAPI* a_gameAPI, size_t a_index) {
         return true;
     };
@@ -248,11 +253,6 @@ extern "C" void MOD_API ModLoad(TeraToma::GameAPI* const a_gameAPI) {
         int left = ((a_gameAPI->hand.cardCount + (int)a_index - 2) % (int)a_gameAPI->hand.cardCount);
         int right = (((int)a_index + 2) % (int)a_gameAPI->hand.cardCount);
 
-        std::println("Left {} Right {}", left, right);
-        std::println("Left {} Right {}", a_gameAPI->hand.cards[left].statuses.size(), a_gameAPI->hand.cards[right].statuses.size());
-        std::println("Left {} Right {}", a_gameAPI->hand.cards[left].names.back(), a_gameAPI->hand.cards[right].names.back());
-        std::println("Left {} Right {}", AllegianceStrings.at(a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[left].names.back()).allegiance), AllegianceStrings.at(a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[right].names.back()).allegiance));
-
         if (a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[left].names.back()).allegiance != CardAllegiance::DEMONIC && (a_gameAPI->hand.cards[left].statuses.size() == 0 || std::find(a_gameAPI->hand.cards[left].statuses.begin(), a_gameAPI->hand.cards[left].statuses.end(), "Corruption") == a_gameAPI->hand.cards[left].statuses.end())) {
             a_gameAPI->hand.cards[left].statuses.push_back("Corruption");
         }
@@ -281,6 +281,10 @@ extern "C" void MOD_API ModLoad(TeraToma::GameAPI* const a_gameAPI) {
 
         uint32_t index = RandomUniformUInt32(0, (uint32_t)(available.size()));
         a_gameAPI->hand.cards[a_index].displayName = available.at(index);
+
+        if (a_gameAPI->hand.cards[a_index].displayName != a_gameAPI->hand.cards[a_index].names.back() && a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[a_index].displayName).onLyingPostResolve) {
+            a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[a_index].displayName).onLyingPostResolve(a_gameAPI, a_index);
+        }
     };
     plagueBringerCard->canActivate = [](TeraToma::GameAPI* a_gameAPI, size_t a_index) {
         return a_gameAPI->hand.cards[a_index].displayName != a_gameAPI->hand.cards[a_index].names.back() && a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[a_index].displayName).canActivate && a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[a_index].displayName).canActivate(a_gameAPI, a_index);
@@ -352,6 +356,10 @@ extern "C" void MOD_API ModLoad(TeraToma::GameAPI* const a_gameAPI) {
 
         uint32_t index = RandomUniformUInt32(0, (uint32_t)(available.size()));
         a_gameAPI->hand.cards[a_index].displayName = available.at(index);
+        
+        if (a_gameAPI->hand.cards[a_index].displayName != a_gameAPI->hand.cards[a_index].names.back() && a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[a_index].displayName).onLyingPostResolve) {
+            a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[a_index].displayName).onLyingPostResolve(a_gameAPI, a_index);
+        }
     };
     werewolfCard->canActivate = [](TeraToma::GameAPI* a_gameAPI, size_t a_index) {
         return a_gameAPI->hand.cards[a_index].displayName != a_gameAPI->hand.cards[a_index].names.back() && a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[a_index].displayName).canActivate && a_gameAPI->cardTypes.at(a_gameAPI->hand.cards[a_index].displayName).canActivate(a_gameAPI, a_index);

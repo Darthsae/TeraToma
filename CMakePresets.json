@@ -22,7 +22,10 @@
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "CMAKE_C_COMPILER": "$env{CC}",
+                "CMAKE_CXX_COMPILER": "env{CXX}"
             }
         }
     ],
